@@ -426,6 +426,7 @@ AbcTransformWriter * AbcExporter::createTransformWriter(Object *ob, Object *pare
 	}
 
 	AbcTransformWriter *parent_writer = NULL;
+	Alembic::Abc::OObject alembic_parent;
 
 	if (parent) {
 		/* Since there are so many different ways to find parents (as evident
@@ -448,15 +449,16 @@ AbcTransformWriter * AbcExporter::createTransformWriter(Object *ob, Object *pare
 		}
 
 		BLI_assert(parent_writer);
-	}
-
-	if (parent_writer) {
-		my_writer = new AbcTransformWriter(ob, parent_writer->alembicXform(), parent_writer, m_trans_sampling_index, m_settings);
+		alembic_parent = parent_writer->alembicXform();
 	}
 	else {
-		my_writer = new AbcTransformWriter(ob, m_writer->archive().getTop(), NULL, m_trans_sampling_index, m_settings);
+		/* Parentless objects still have the "top object" as parent
+		 * in Alembic. */
+		alembic_parent = m_writer->archive().getTop();
 	}
 
+	my_writer = new AbcTransformWriter(ob, alembic_parent, parent_writer,
+	                                   m_trans_sampling_index, m_settings);
 	m_xforms[name] = my_writer;
 	return my_writer;
 }
