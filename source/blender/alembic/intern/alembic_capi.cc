@@ -428,7 +428,6 @@ static int visit_object(const IObject &object,
 				std::cerr << children_claiming_this_object
 				          << " of its " << num_children << " children used this Xform for themselves, "
 				          << "which is inconsistent!" << std::endl;
-				create_empty = true;
 			}
 //			if (children_claiming_this_object > 0) {
 //				std::cerr << children_claiming_this_object << " of its " << num_children
