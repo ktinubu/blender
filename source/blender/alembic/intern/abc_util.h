@@ -125,7 +125,7 @@ ABC_INLINE void copy_zup_from_yup(float zup[3], const float yup[3])
 
 ABC_INLINE void copy_zup_from_yup(short zup[3], const short yup[3])
 {
-	const float old_yup1 = yup[1];  /* in case zup == yup */
+	const short old_yup1 = yup[1];  /* in case zup == yup */
 	zup[0] = yup[0];
 	zup[1] = -yup[2];
 	zup[2] = old_yup1;
@@ -143,7 +143,7 @@ ABC_INLINE void copy_yup_from_zup(float yup[3], const float zup[3])
 
 ABC_INLINE void copy_yup_from_zup(short yup[3], const short zup[3])
 {
-	const float old_zup1 = zup[1];  /* in case yup == zup */
+	const short old_zup1 = zup[1];  /* in case yup == zup */
 	yup[0] = zup[0];
 	yup[1] = zup[2];
 	yup[2] = -old_zup1;
