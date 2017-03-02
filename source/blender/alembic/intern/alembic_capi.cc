@@ -376,6 +376,20 @@ void ABC_export(
 
 /* ********************** Import file ********************** */
 
+/**
+ * Generates an AbcObjectReader for this Alembic object and its children.
+ *
+ * \param object The Alembic IObject to visit.
+ * \param readers The created AbcObjectReader * will be appended to this vector.
+ * \param readers_map The created AbcObjectReader * will be appended to this
+ *                    map, keyed by its full name in Alembic.
+ * \param settings Import settings, not used directly but passed to the
+ *                 AbcObjectReader subclass constructors.
+ * \return whether this IObject claims its parent as part of the same object
+ *         (for example an IPolyMesh object would claim its parent, as the mesh
+ *         is interpreted as the object's data, and the parent IXform as its
+ *         Blender object).
+ */
 static bool visit_object(const IObject &object,
                          std::vector<AbcObjectReader *> &readers,
                          GHash * readers_map,
