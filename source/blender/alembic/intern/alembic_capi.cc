@@ -376,7 +376,7 @@ void ABC_export(
 
 /* ********************** Import file ********************** */
 
-static int visit_object(const IObject &object,
+static bool visit_object(const IObject &object,
                          std::vector<AbcObjectReader *> &readers,
                          GHash * readers_map,
                          ImportSettings &settings)
@@ -393,10 +393,9 @@ static int visit_object(const IObject &object,
 	// or a Blender object (empty) themselves.
 	size_t children_claiming_this_object = 0;
 	size_t num_children = object.getNumChildren();
-	BLI_assert((int)true == 1);
 	for (size_t i = 0; i < num_children; ++i) {
 		bool child_claims_this_object = visit_object(object.getChild(i), readers, readers_map, settings);
-		children_claiming_this_object += child_claims_this_object;  // using (int)true == 1
+		children_claiming_this_object += child_claims_this_object ? 1 : 0;
 	}
 
 	AbcObjectReader *reader = NULL;
