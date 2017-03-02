@@ -436,11 +436,6 @@ static bool visit_object(const IObject &object,
 			create_empty = true;
 		}
 		else {
-			if (0 < children_claiming_this_object && children_claiming_this_object < num_children) {
-				std::cerr << children_claiming_this_object
-				          << " of its " << num_children << " children used this Xform for themselves, "
-				          << "which is inconsistent!" << std::endl;
-			}
 //			if (children_claiming_this_object > 0) {
 //				std::cerr << children_claiming_this_object << " of its " << num_children
 //				          << " children used this Xform for themselves, so not creating empty\n";
