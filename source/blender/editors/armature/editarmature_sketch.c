@@ -974,6 +974,10 @@ static int sk_getStrokeSnapPoint(bContext *C, SK_Point *pt, SK_Sketch *sketch, S
 	 * the ideal would be to call this function only at the beginning of the snap operation,
 	 * or at the beginning of the operator itself */
 	struct SnapObjectContext *snap_context = ED_transform_snap_object_context_create_view3d(
+	        &(const struct SnapObjectParams){
+	            .snap_select = SNAP_NOT_SELECTED,
+	            .use_object_edit_cage = false,
+	        },
 	        CTX_data_main(C), CTX_data_scene(C), 0,
 	        CTX_wm_region(C), CTX_wm_view3d(C));
 
@@ -984,10 +988,6 @@ static int sk_getStrokeSnapPoint(bContext *C, SK_Point *pt, SK_Sketch *sketch, S
 		float size;
 		if (peelObjectsSnapContext(
 		        snap_context, mvalf,
-		        &(const struct SnapObjectParams){
-		            .snap_select = SNAP_NOT_SELECTED,
-		            .use_object_edit_cage = false,
-		        },
 		        (ts->snap_flag & SCE_SNAP_PEEL_OBJECT) != 0,
 		        loc, dummy_no, &size))
 		{
@@ -1025,10 +1025,6 @@ static int sk_getStrokeSnapPoint(bContext *C, SK_Point *pt, SK_Sketch *sketch, S
 			if (ED_transform_snap_object_project_view3d(
 			        snap_context,
 			        ts->snap_mode,
-			        &(const struct SnapObjectParams){
-			            .snap_select = SNAP_NOT_SELECTED,
-			            .use_object_edit_cage = false,
-			        },
 			        mvalf, &dist_px, NULL,
 			        loc, dummy_no))
 			{

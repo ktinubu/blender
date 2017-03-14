@@ -280,6 +280,10 @@ static void ruler_state_set(bContext *C, RulerInfo *ruler_info, int state)
 	}
 	else if (state == RULER_STATE_DRAG) {
 		ruler_info->snap_context = ED_transform_snap_object_context_create_view3d(
+		        &(const struct SnapObjectParams){
+		            .snap_select = SNAP_ALL,
+		            .use_object_edit_cage = true,
+		        },
 		        CTX_data_main(C), CTX_data_scene(C), 0,
 		        ruler_info->ar, CTX_wm_view3d(C));
 	}
@@ -732,10 +736,6 @@ static bool view3d_ruler_item_mousemove(
 			if (ED_transform_snap_object_project_view3d_mixed(
 			        ruler_info->snap_context,
 			        SCE_SELECT_FACE,
-			        &(const struct SnapObjectParams){
-			            .snap_select = SNAP_ALL,
-			            .use_object_edit_cage = true,
-			        },
 			        mval_fl, &dist_px, true,
 			        co, ray_normal))
 			{
@@ -744,10 +744,6 @@ static bool view3d_ruler_item_mousemove(
 				madd_v3_v3v3fl(ray_start, co, ray_normal, eps_bias);
 				ED_transform_snap_object_project_ray(
 				        ruler_info->snap_context,
-				        &(const struct SnapObjectParams){
-				            .snap_select = SNAP_ALL,
-				            .use_object_edit_cage = true,
-				        },
 				        ray_start, ray_normal, NULL,
 				        co_other, NULL);
 			}
@@ -761,10 +757,6 @@ static bool view3d_ruler_item_mousemove(
 			if (ED_transform_snap_object_project_view3d_mixed(
 			        ruler_info->snap_context,
 			        (SCE_SELECT_VERTEX | SCE_SELECT_EDGE) | (use_depth ? SCE_SELECT_FACE : 0),
-			        &(const struct SnapObjectParams){
-			            .snap_select = SNAP_ALL,
-			            .use_object_edit_cage = true,
-			        },
 			        mval_fl, &dist_px, use_depth,
 			        co, NULL))
 			{

@@ -601,6 +601,10 @@ static void initSnappingMode(TransInfo *t)
 	if (t->spacetype == SPACE_VIEW3D) {
 		if (t->tsnap.object_context == NULL) {
 			t->tsnap.object_context = ED_transform_snap_object_context_create_view3d(
+			        &(const struct SnapObjectParams){
+			            .snap_select = t->tsnap.modeSelect,
+			            .use_object_edit_cage = (t->flag & T_EDIT) != 0,
+			        },
 			        G.main, t->scene, 0,
 			        t->ar, t->view);
 
@@ -1215,10 +1219,6 @@ bool snapObjectsTransform(
 	return ED_transform_snap_object_project_view3d_ex(
 	        t->tsnap.object_context,
 	        t->scene->toolsettings->snap_mode,
-	        &(const struct SnapObjectParams){
-	            .snap_select = t->tsnap.modeSelect,
-	            .use_object_edit_cage = (t->flag & T_EDIT) != 0,
-	        },
 	        mval, dist_px, NULL,
 	        r_loc, r_no, NULL);
 }
@@ -1229,7 +1229,6 @@ bool snapObjectsTransform(
 bool peelObjectsSnapContext(
         SnapObjectContext *sctx,
         const float mval[2],
-        const struct SnapObjectParams *params,
         const bool use_peel_object,
         /* return args */
         float r_loc[3], float r_no[3], float *r_thickness)
@@ -1237,7 +1236,6 @@ bool peelObjectsSnapContext(
 	ListBase depths_peel = {0};
 	ED_transform_snap_object_project_all_view3d_ex(
 	        sctx,
-	        params,
 	        mval, -1.0f, false,
 	        &depths_peel);
 
@@ -1305,10 +1303,6 @@ bool peelObjectsTransform(
 	return peelObjectsSnapContext(
 	        t->tsnap.object_context,
 	        mval,
-	        &(const struct SnapObjectParams){
-	            .snap_select = t->tsnap.modeSelect,
-	            .use_object_edit_cage = (t->flag & T_EDIT) != 0,
-	        },
 	        use_peel_object,
 	        r_loc, r_no, r_thickness);
 }

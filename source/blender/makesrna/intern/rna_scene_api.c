@@ -160,14 +160,13 @@ static void rna_Scene_ray_cast(
 	normalize_v3(direction);
 
 	SnapObjectContext *sctx = ED_transform_snap_object_context_create(
+	        &(const struct SnapObjectParams){
+	            .snap_select = SNAP_ALL,
+	        },
 	        G.main, scene, 0);
 
 	bool ret = ED_transform_snap_object_project_ray_ex(
 	        sctx,
-	        SCE_SNAP_MODE_FACE,
-	        &(const struct SnapObjectParams){
-	            .snap_select = SNAP_ALL,
-	        },
 	        origin, direction, &ray_dist,
 	        r_location, r_normal, r_index,
 	        r_ob, (float(*)[4])r_obmat);

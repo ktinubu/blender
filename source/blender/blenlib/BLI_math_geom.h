@@ -118,10 +118,10 @@ float dist_squared_to_ray_v3(
 float dist_squared_ray_to_seg_v3(
         const float ray_origin[3], const float ray_direction[3],
         const float v0[3], const float v1[3],
-        float r_point[3], float *r_depth);
+        float r_point[3], float *r_lambda, float *r_depth);
 float closest_to_line_v2(float r_close[2], const float p[2], const float l1[2], const float l2[2]);
 float closest_to_line_v3(float r_close[3], const float p[3], const float l1[3], const float l2[3]);
-void closest_to_line_segment_v2(float r_close[2], const float p[2], const float l1[2], const float l2[2]);
+float closest_to_line_segment_v2(float r_close[2], const float p[2], const float l1[2], const float l2[2]);
 void closest_to_line_segment_v3(float r_close[3], const float p[3], const float l1[3], const float l2[3]);
 void closest_to_plane_normalized_v3(float r_close[3], const float plane[4], const float pt[3]);
 void closest_to_plane_v3(float r_close[3], const float plane[4], const float pt[3]);
@@ -196,6 +196,7 @@ bool isect_ray_plane_v3(
         float *r_lambda, const bool clip);
 
 bool isect_point_planes_v3(float (*planes)[4], int totplane, const float p[3]);
+bool isect_point_planes_v3_negate(float(*planes)[4], int totplane, const float p[3]);
 bool isect_line_plane_v3(
         float r_isect_co[3], const float l1[3], const float l2[3],
         const float plane_co[3], const float plane_no[3]) ATTR_WARN_UNUSED_RESULT;

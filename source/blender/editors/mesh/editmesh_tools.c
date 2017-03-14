@@ -306,6 +306,10 @@ void EMBM_project_snap_verts(bContext *C, ARegion *ar, BMEditMesh *em)
 	ED_view3d_init_mats_rv3d(obedit, ar->regiondata);
 
 	struct SnapObjectContext *snap_context = ED_transform_snap_object_context_create_view3d(
+	       &(const struct SnapObjectParams){
+	            .snap_select = SNAP_NOT_ACTIVE,
+	            .use_object_edit_cage = false,
+	        },
 	        CTX_data_main(C), CTX_data_scene(C), 0,
 	        ar, CTX_wm_view3d(C));
 
@@ -316,10 +320,6 @@ void EMBM_project_snap_verts(bContext *C, ARegion *ar, BMEditMesh *em)
 				if (ED_transform_snap_object_project_view3d_mixed(
 				        snap_context,
 				        SCE_SELECT_FACE,
-				        &(const struct SnapObjectParams){
-				            .snap_select = SNAP_NOT_ACTIVE,
-				            .use_object_edit_cage = false,
-				        },
 				        mval, NULL, true,
 				        co_proj, NULL))
 				{

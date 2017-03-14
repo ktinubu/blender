@@ -321,21 +321,25 @@ float dist_to_line_segment_v2(const float p[2], const float l1[2], const float l
 }
 
 /* point closest to v1 on line v2-v3 in 2D */
-void closest_to_line_segment_v2(float r_close[2], const float p[2], const float l1[2], const float l2[2])
+float closest_to_line_segment_v2(float r_close[2], const float p[2], const float l1[2], const float l2[2])
 {
-	float lambda, cp[2];
-
-	lambda = closest_to_line_v2(cp, p, l1, l2);
+	float h[2], u[2], lambda;
+	sub_v2_v2v2(u, l2, l1);
+	sub_v2_v2v2(h, p, l1);
+	lambda = dot_v2v2(u, h) / dot_v2v2(u, u);
 
 	/* flip checks for !finite case (when segment is a point) */
 	if (!(lambda > 0.0f)) {
 		copy_v2_v2(r_close, l1);
+		return 0.0f;
 	}
 	else if (!(lambda < 1.0f)) {
 		copy_v2_v2(r_close, l2);
+		return 1.0f;
 	}
 	else {
-		copy_v2_v2(r_close, cp);
+		madd_v2_v2v2fl(r_close, l1, u, lambda);
+		return lambda;
 	}
 }
 
@@ -578,7 +582,7 @@ float dist_squared_to_ray_v3(
 float dist_squared_ray_to_seg_v3(
         const float ray_origin[3], const float ray_direction[3],
         const float v0[3], const float v1[3],
-        float r_point[3], float *r_depth)
+        float r_point[3], float *r_lambda, float *r_depth)
 {
 	float a[3], t[3], n[3], lambda;
 	sub_v3_v3v3(a, v1, v0);
@@ -616,6 +620,11 @@ float dist_squared_ray_to_seg_v3(
 			*r_depth = dot_v3v3(t, ray_direction);
 		}
 	}
+
+	if (r_lambda) {
+		*r_lambda = lambda;
+	}
+
 	return len_squared_v3(t) - SQUARE(*r_depth);
 }
 
@@ -1608,10 +1617,23 @@ bool isect_ray_seg_v2(
  */
 bool isect_point_planes_v3(float (*planes)[4], int totplane, const float p[3])
 {
-	int i;
-
-	for (i = 0; i < totplane; i++) {
+	for (int i = 0; i < totplane; i++) {
 		if (plane_point_side_v3(planes[i], p) > 0.0f) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Check if a point is in front all planes.
+ * (Same as `isect_point_planes_v3` but with flipped planes)
+ */
+bool isect_point_planes_v3_negate(const float(*planes)[4], const short totplane, const float p[3])
+{
+	for (int i = 0; i < totplane; i++) {
+		if (plane_point_side_v3(planes[i], p) < 0.0f) {
 			return false;
 		}
 	}
@@ -2851,9 +2873,6 @@ bool barycentric_coords_v2(const float v1[2], const float v2[2], const float v3[
 
 /**
  * \note: using #cross_tri_v2 means locations outside the triangle are correctly weighted
- *
- * \note This is *exactly* the same calculation as #resolve_tri_uv_v2,
- * although it has double precision and is used for texture baking, so keep both.
  */
 void barycentric_weights_v2(const float v1[2], const float v2[2], const float v3[2], const float co[2], float w[3])
 {
@@ -2893,11 +2912,9 @@ void barycentric_weights_v2_persp(const float v1[4], const float v2[4], const fl
 	}
 }
 
-/**
- * same as #barycentric_weights_v2 but works with a quad,
+/* same as #barycentric_weights_v2 but works with a quad,
  * note: untested for values outside the quad's bounds
- * this is #interp_weights_poly_v2 expanded for quads only
- */
+ * this is #interp_weights_poly_v2 expanded for quads only */
 void barycentric_weights_v2_quad(const float v1[2], const float v2[2], const float v3[2], const float v4[2],
                                  const float co[2], float w[4])
 {
@@ -3350,8 +3367,6 @@ void interp_cubic_v3(float x[3], float v[3], const float x1[3], const float v1[3
  * Barycentric reverse
  *
  * Compute coordinates (u, v) for point \a st with respect to triangle (\a st0, \a st1, \a st2)
- *
- * \note same basic result as #barycentric_weights_v2, see it's comment for details.
  */
 void resolve_tri_uv_v2(float r_uv[2], const float st[2],
                        const float st0[2], const float st1[2], const float st2[2])

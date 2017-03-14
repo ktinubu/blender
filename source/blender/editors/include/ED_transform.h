@@ -176,7 +176,6 @@ bool peelObjectsTransform(
 bool peelObjectsSnapContext(
         struct SnapObjectContext *sctx,
         const float mval[2],
-        const struct SnapObjectParams *params,
         const bool use_peel_object,
         /* return args */
         float r_loc[3], float r_no[3], float *r_thickness);
