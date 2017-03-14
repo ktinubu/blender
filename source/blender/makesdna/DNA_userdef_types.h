@@ -473,7 +473,10 @@ typedef struct UserDef {
 	char pad2;
 	short transopts;
 	short menuthreshold1, menuthreshold2;
-	
+
+	/* startup template */
+	char app_template[64];
+
 	struct ListBase themes;
 	struct ListBase uifonts;
 	struct ListBase uistyles;
@@ -482,7 +485,7 @@ typedef struct UserDef {
 	struct ListBase addons;
 	struct ListBase autoexec_paths;
 	char keyconfigstr[64];
-	
+
 	short undosteps;
 	short undomemory;
 	short gp_manhattendist, gp_euclideandist, gp_eraser;

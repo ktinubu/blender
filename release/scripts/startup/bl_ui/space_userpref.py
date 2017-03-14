@@ -90,6 +90,59 @@ class USERPREF_MT_interaction_presets(Menu):
     draw = Menu.draw_preset
 
 
+class USERPREF_MT_app_templates(Menu):
+    bl_label = "Application Templates"
+    preset_subdir = "app_templates"
+
+    def draw_ex(self, context, *, use_splash=False, use_default=False):
+        import os
+
+        layout = self.layout
+
+        # now draw the presets
+        layout.operator_context = 'EXEC_DEFAULT'
+
+        if use_default:
+            props = layout.operator("wm.read_homefile", text="Default")
+            props.use_splash = True
+            props.use_template = True
+            layout.separator()
+
+        template_paths = bpy.utils.app_template_paths()
+
+        # expand template paths
+        template_paths_expand = []
+        for path in template_paths:
+            for d in os.listdir(path):
+                template = os.path.join(path, d)
+                if os.path.isdir(template):
+                    template_paths_expand.append(template)
+
+        # Would use Menu.path_menu, except we need a little more control
+        self.path_menu(
+            template_paths_expand,
+            "wm.read_homefile",
+            props_default={
+                "use_splash": use_splash,
+                "use_template": True,
+            },
+            filter_ext=lambda ext: ext.lower() == ".blend",
+            # name of directory the file is in.
+            display_name=lambda f: bpy.path.display_name(f.rsplit(os.sep, 2)[-2]),
+        )
+
+    def draw(self, context):
+        self.draw_ex(context, use_splash=False, use_default=False)
+
+
+class USERPREF_MT_templates_splash(Menu):
+    bl_label = "Startup Templates"
+    preset_subdir = "templates"
+
+    def draw(self, context):
+        USERPREF_MT_app_templates.draw_ex(self, context, use_splash=True, use_default=True)
+
+
 class USERPREF_MT_appconfigs(Menu):
     bl_label = "AppPresets"
     preset_subdir = "keyconfig"
@@ -110,7 +163,12 @@ class USERPREF_MT_splash(Menu):
 
         split = layout.split()
         row = split.row()
-        row.label("")
+        row.label("Templates")
+        template = context.user_preferences.app_template
+        row.menu(
+            "USERPREF_MT_templates_splash",
+            text=bpy.path.display_name(template) if template else "Default",
+        )
         row = split.row()
         row.label("Interaction:")
 

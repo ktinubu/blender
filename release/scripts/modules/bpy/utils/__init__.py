@@ -32,6 +32,7 @@ __all__ = (
     "preset_find",
     "preset_paths",
     "refresh_script_paths",
+    "app_template_paths",
     "register_class",
     "register_module",
     "register_manual_map",
@@ -354,6 +355,42 @@ def refresh_script_paths():
         path = _os.path.join(path, "modules")
         if _os.path.isdir(path):
             _sys_path_ensure(path)
+
+
+def app_template_paths(subdir=None):
+    """
+    Returns a list of valid template paths.
+
+    :arg subdir: Optional subdir.
+    :type subdir: string
+    :arg check_all: Include local, user and system paths rather just the paths
+       blender uses.
+    :type check_all: bool
+    :return: script paths.
+    :rtype: list
+    """
+    # All possible paths, no duplicates, keep order.
+    base_paths = (
+        path for path in (_os.path.join(resource_path(res), "app_templates")
+        for res in ('LOCAL', 'USER', 'SYSTEM')))
+
+    templates = []
+    for path in base_paths:
+        if path:
+            path = _os.path.normpath(path)
+            if _os.path.isdir(path):
+                templates.append(path)
+
+    if subdir is None:
+        return templates
+
+    templates_subdir = []
+    for path in templates:
+        path_subdir = _os.path.join(path, subdir)
+        if _os.path.isdir(path_subdir):
+            templates_subdir.append(path_subdir)
+
+    return templates_subdir
 
 
 def preset_paths(subdir):
