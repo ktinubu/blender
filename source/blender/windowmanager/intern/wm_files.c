@@ -421,7 +421,7 @@ void WM_file_autoexec_init(const char *filepath)
 	}
 }
 
-static void wm_file_template_from_path(char startup_template[sizeof(U.app_template)], const char *filepath)
+static void wm_file_template_from_path(char app_template[sizeof(U.app_template)], const char *filepath)
 {
 	const char *end = BLI_last_slash(filepath);
 	const char *sta = end;
@@ -432,7 +432,7 @@ static void wm_file_template_from_path(char startup_template[sizeof(U.app_templa
 			break;
 		}
 	}
-	BLI_strncpy(startup_template, sta, MIN2((end - sta) + 1, sizeof(U.app_template)));
+	BLI_strncpy(app_template, sta, MIN2((end - sta) + 1, sizeof(U.app_template)));
 }
 
 void wm_file_read_report(bContext *C)
@@ -465,7 +465,7 @@ void wm_file_read_report(bContext *C)
  * Logic shared between #WM_file_read & #wm_homefile_read,
  * updates to make after reading a file.
  */
-static void wm_file_read_post(bContext *C, bool is_startup_file, const char *startup_template)
+static void wm_file_read_post(bContext *C, bool is_startup_file, const char *app_template)
 {
 	bool addons_loaded = false;
 	wmWindowManager *wm = CTX_wm_manager(C);
@@ -483,8 +483,8 @@ static void wm_file_read_post(bContext *C, bool is_startup_file, const char *sta
 #ifdef WITH_PYTHON
 	if (is_startup_file) {
 		/* Load a file but keep the splash open */
-		if (startup_template) {
-			BLI_strncpy(U.app_template, startup_template, sizeof(U.app_template));
+		if (app_template) {
+			BLI_strncpy(U.app_template, app_template, sizeof(U.app_template));
 		}
 		/* possible python hasn't been initialized */
 		if (CTX_py_init_get(C)) {
@@ -657,7 +657,7 @@ bool WM_file_read(bContext *C, const char *filepath, ReportList *reports)
  */
 int wm_homefile_read(
         bContext *C, ReportList *reports, bool from_memory,
-        const char *custom_file, const char *startup_template)
+        const char *custom_file, const char *app_template)
 {
 	ListBase wmbase;
 	char startstr[FILE_MAX];
@@ -776,7 +776,7 @@ int wm_homefile_read(
 	G.save_over = 0;    // start with save preference untitled.blend
 	G.fileflags &= ~G_FILE_AUTOPLAY;    /*  disable autoplay in startup.blend... */
 
-	wm_file_read_post(C, true, startup_template);
+	wm_file_read_post(C, true, app_template);
 
 	return true;
 }
@@ -1452,14 +1452,14 @@ static int wm_homefile_read_exec(bContext *C, wmOperator *op)
 		G.fileflags &= ~G_FILE_NO_UI;
 	}
 
-	bool is_startup_template = RNA_boolean_get(op->ptr, "use_template");
-	char startup_template[sizeof(U.app_template)] = "";
+	bool is_app_template = RNA_boolean_get(op->ptr, "use_template");
+	char app_template[sizeof(U.app_template)] = "";
 
 	if (filepath != NULL) {
-		wm_file_template_from_path(startup_template, filepath);
+		wm_file_template_from_path(app_template, filepath);
 	}
 
-	if (wm_homefile_read(C, op->reports, from_memory, filepath, is_startup_template ? startup_template : NULL)) {
+	if (wm_homefile_read(C, op->reports, from_memory, filepath, is_app_template ? app_template : NULL)) {
 		if (RNA_boolean_get(op->ptr, "use_splash")) {
 			WM_init_splash(C);
 		}
