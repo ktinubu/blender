@@ -58,7 +58,6 @@ _modules = {}
 
 
 def _enable(template_id, *, handle_error=None):
-    print('Running enable!!!')
     import os
     import sys
     from bpy_restrict_state import RestrictBlend
@@ -208,7 +207,7 @@ def reset(*, reload_scripts=False):
     """
     template_id = _bpy.context.user_preferences.app_template
     if _bpy.app.debug_python:
-        print("app_template_utils.reset('%s')" % template_id)
+        print("bl_app_template_utils.reset('%s')" % template_id)
 
     if reload_scripts and False:
         # TODO, seems correct but reload fails

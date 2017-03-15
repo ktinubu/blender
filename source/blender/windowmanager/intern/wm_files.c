@@ -484,7 +484,7 @@ static void wm_file_read_post(bContext *C, bool is_startup_file)
 	if (is_startup_file) {
 		/* possible python hasn't been initialized */
 		if (CTX_py_init_get(C)) {
-			BPY_execute_string(C, "__import__('app_template_utils').reset()");
+			BPY_execute_string(C, "__import__('bl_app_template_utils').reset()");
 
 			/* sync addons, these may have changed from the defaults */
 			BPY_execute_string(C, "__import__('addon_utils').reset_all()");
