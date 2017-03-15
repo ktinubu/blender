@@ -68,6 +68,7 @@ import os as _os
 import sys as _sys
 
 import addon_utils as _addon_utils
+import app_template_utils as _app_template_utils
 
 _user_preferences = _bpy.context.user_preferences
 _script_module_dirs = "startup", "modules"
@@ -245,6 +246,9 @@ def load_scripts(reload_scripts=False, refresh_scripts=False):
 
                     for mod in modules_from_path(path, loaded_modules):
                         test_register(mod)
+
+    # load template (if set)
+    _app_template_utils.reset(reload_scripts=reload_scripts)
 
     # deal with addons separately
     _initialize = getattr(_addon_utils, "_initialize", None)
