@@ -465,7 +465,7 @@ void wm_file_read_report(bContext *C)
  * Logic shared between #WM_file_read & #wm_homefile_read,
  * updates to make after reading a file.
  */
-static void wm_file_read_post(bContext *C, bool is_startup_file, const char *app_template)
+static void wm_file_read_post(bContext *C, bool is_startup_file)
 {
 	bool addons_loaded = false;
 	wmWindowManager *wm = CTX_wm_manager(C);
@@ -482,10 +482,6 @@ static void wm_file_read_post(bContext *C, bool is_startup_file, const char *app
 
 #ifdef WITH_PYTHON
 	if (is_startup_file) {
-		/* Load a file but keep the splash open */
-		if (app_template) {
-			BLI_strncpy(U.app_template, app_template, sizeof(U.app_template));
-		}
 		/* possible python hasn't been initialized */
 		if (CTX_py_init_get(C)) {
 			BPY_execute_string(C, "__import__('app_template_utils').reset()");
@@ -606,7 +602,7 @@ bool WM_file_read(bContext *C, const char *filepath, ReportList *reports)
 			}
 		}
 
-		wm_file_read_post(C, false, NULL);
+		wm_file_read_post(C, false);
 
 		success = true;
 	}
@@ -657,7 +653,7 @@ bool WM_file_read(bContext *C, const char *filepath, ReportList *reports)
  */
 int wm_homefile_read(
         bContext *C, ReportList *reports, bool from_memory,
-        const char *custom_file, const char *app_template)
+        const char *custom_file, const char *custom_app_template)
 {
 	ListBase wmbase;
 	char startstr[FILE_MAX];
@@ -776,7 +772,12 @@ int wm_homefile_read(
 	G.save_over = 0;    // start with save preference untitled.blend
 	G.fileflags &= ~G_FILE_AUTOPLAY;    /*  disable autoplay in startup.blend... */
 
-	wm_file_read_post(C, true, app_template);
+	/* Load a file but keep the splash open */
+	if (custom_app_template) {
+		BLI_strncpy(U.app_template, custom_app_template, sizeof(U.app_template));
+	}
+
+	wm_file_read_post(C, true);
 
 	return true;
 }
