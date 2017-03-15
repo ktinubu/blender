@@ -202,12 +202,29 @@ def activate(template_id=None):
         _app_template["id"] = template_id
 
 
-def reset():
+def reset(*, reload_scripts=False):
     """
     Sets default state.
     """
     template_id = _bpy.context.user_preferences.app_template
     if _bpy.app.debug_python:
         print("app_template_utils.reset('%s')" % template_id)
-    activate(template_id)
 
+    if reload_scripts and False:
+        # TODO, seems correct but reload fails
+        import importlib
+        import os
+        import sys
+        _modules_new = {}
+        for key, mod in _modules.items():
+            # Will always be 'template' but just use convention of __name__ to be sure.
+            module_name = mod.__name__
+            with _IsolateImportHelper(os.path.dirname(mod.__file__), module_name):
+                sys.modules[module_name] = mod
+                _modules_new[key] = importlib.reload(mod)
+                del sys.modules[module_name]
+        _modules.clear()
+        _modules.update(_modules_new)
+        del _modules_new
+
+    activate(template_id)
