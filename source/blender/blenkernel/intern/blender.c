@@ -236,17 +236,26 @@ void BKE_blender_userdef_set_template(UserDef *userdef)
 	 * - various minor settings (add as needed).
 	 */
 
-#define LIST_OVERRIDE(dst, src) { \
-	BLI_freelistN(dst); \
-	BLI_movelisttolist(dst, src); \
+#define LIST_OVERRIDE(id) { \
+	BLI_freelistN(&U.id); \
+	BLI_movelisttolist(&U.id, &userdef->id); \
 } ((void)0)
 
-	LIST_OVERRIDE(&U.uistyles, &userdef->uistyles);
-	LIST_OVERRIDE(&U.uifonts, &userdef->uifonts);
-	LIST_OVERRIDE(&U.themes, &userdef->themes);
-	LIST_OVERRIDE(&U.addons, &userdef->addons);
+#define MEMCPY_OVERRIDE(id) \
+	memcpy(U.id, userdef->id, sizeof(U.id));
+
+	LIST_OVERRIDE(uistyles);
+	LIST_OVERRIDE(uifonts);
+	LIST_OVERRIDE(themes);
+	LIST_OVERRIDE(addons);
+
+	MEMCPY_OVERRIDE(light);
+
+	MEMCPY_OVERRIDE(font_path_ui);
+	MEMCPY_OVERRIDE(font_path_ui_mono);
 
 #undef LIST_OVERRIDE
+#undef MEMCPY_OVERRIDE
 }
 
 /* *****************  testing for break ************* */
