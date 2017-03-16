@@ -227,7 +227,7 @@ static void setup_app_data(
 	if (bfd->user) {
 
 		/* only here free userdef themes... */
-		BKE_blender_userdef_free(&U);
+		BKE_blender_userdef_free_data(&U);
 
 		U = *bfd->user;
 
@@ -424,10 +424,10 @@ bool BKE_blendfile_read_from_memfile(
 	return (bfd != NULL);
 }
 
-void BKE_blendfile_userdef_assign(UserDef *userdef)
+void BKE_blendfile_userdef_set(UserDef *userdef)
 {
 	/* only here free userdef themes... */
-	BKE_blender_userdef_free(&U);
+	BKE_blender_userdef_free_data(&U);
 	U = *userdef;
 	MEM_freeN(userdef);
 }

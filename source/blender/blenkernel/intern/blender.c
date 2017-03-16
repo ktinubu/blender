@@ -154,7 +154,7 @@ static void keymap_item_free(wmKeyMapItem *kmi)
  * When loading a new userdef from file,
  * or when exiting Blender.
  */
-void BKE_blender_userdef_free(UserDef *userdef)
+void BKE_blender_userdef_free_data(UserDef *userdef)
 {
 #define U _invalid_access_ /* ensure no accidental global access */
 #ifdef U  /* quiet warning */
