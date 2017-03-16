@@ -21,36 +21,55 @@
 import bpy
 import bl_app_override
 
-class_store = []
+
+class AppStateStore:
+    # Utility class to encapsulate application state, backup and restore.
+    __slots__ = (
+        "class_store",
+    )
+
+    def __init__(self):
+        self.class_store = []
+
+    def backup(self):
+        assert(len(self.class_store) == 0)
+
+        self.class_store.extend(
+            bl_app_override.class_filter(
+                bpy.types.Panel,
+                # match any of these values
+                bl_region_type={'TOOLS', 'WINDOW'},
+                bl_space_type={'VIEW_3D', 'PROPERTIES'},
+                # keep basic panels
+                black_list={
+                    'OBJECT_PT_transform',
+                    'VIEW3D_PT_tools_add_object',
+                    'VIEW3D_PT_tools_meshedit',
+                },
+            ),
+        )
+
+        unregister = bpy.utils.unregister_class
+        for cls in self.class_store:
+            unregister(cls)
+
+    def restore(self):
+        assert(len(self.class_store) != 0)
+
+        register = bpy.utils.register_class
+        for cls in self.class_store:
+            register(cls)
+        self.class_store.clear()
+
+
+app_state = AppStateStore()
+
 
 def register():
     print("Template Register", __file__)
-
-    class_store.clear()
-
-    class_store.extend(
-        bl_app_override.class_filter(
-            bpy.types.Panel,
-            # match any of these values
-            bl_region_type={'TOOLS', 'WINDOW'},
-            bl_space_type={'VIEW_3D', 'PROPERTIES'},
-            # keep basic panels
-            black_list={
-                'VIEW3D_PT_tools_add_object',
-                'OBJECT_PT_transform',
-            },
-        ),
-    )
-    unregister = bpy.utils.unregister_class
-    for cls in class_store:
-        unregister(cls)
+    app_state.backup()
 
 
 def unregister():
     print("Template Unregister", __file__)
-
-    register = bpy.utils.register_class
-    for cls in class_store:
-        register(cls)
-    class_store.clear()
-
+    app_state.restore()
