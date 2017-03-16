@@ -57,6 +57,35 @@ _app_template = {
 _modules = {}
 
 
+# -----------------------------------------------------------------------------
+# Helper Classes
+
+# Avoids leaving sys.paths & modules in an unknown state.
+class _IsolateImportHelper:
+
+    __slots__ = ("path", "module", "module_name")
+
+    def __init__(self, path, module_name):
+        self.path = path
+        self.module_name = module_name
+
+    def __enter__(self):
+        import sys
+        self.module = sys.modules.pop(self.module_name, None)
+        sys.path.insert(0, self.path)
+
+    def __exit__(self, type, value, traceback):
+        import sys
+        if self.module is not None:
+            sys.modules[self.module_name] = self.module
+        else:
+            sys.modules.pop(self.module_name, None)
+        try:
+            sys.path.remove(self.path)
+        except Exception:
+            pass
+
+
 def _enable(template_id, *, handle_error=None):
     import os
     import sys
@@ -142,33 +171,6 @@ def _disable(template_id, *, handle_error=None):
     if _bpy.app.debug_python:
         print("\tapp_template_utils.disable", template_id)
 
-
-# Avoids leaving sys.paths & modules in an unknown state.
-class _IsolateImportHelper:
-
-    __slots__ = ("path", "module", "module_name")
-
-    def __init__(self, path, module_name):
-        self.path = path
-        self.module_name = module_name
-
-    def __enter__(self):
-        import sys
-        self.module = sys.modules.pop(self.module_name, None)
-        sys.path.insert(0, self.path)
-
-    def __exit__(self, type, value, traceback):
-        import sys
-        if self.module is not None:
-            sys.modules[self.module_name] = self.module
-        else:
-            sys.modules.pop(self.module_name, None)
-        try:
-            sys.path.remove(self.path)
-        except Exception:
-            pass
-
-
 def import_from_path(path):
     """
     Imports 'startup' from a path.
@@ -190,6 +192,10 @@ def import_from_id(template_id):
 
 
 def activate(template_id=None):
+
+    # Disable all addons, afterwards caller must reset.
+    import addon_utils
+    addon_utils.disable_all()
 
     template_id_prev = _app_template["id"]
     if template_id_prev:

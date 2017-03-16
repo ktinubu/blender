@@ -444,6 +444,13 @@ def reset_all(*, reload_scripts=False):
                 disable(mod_name)
 
 
+def disable_all():
+    import sys
+    for mod_name, mod in sys.modules.items():
+        if getattr(mod, "__addon_enabled__", False):
+            disable(mod_name)
+
+
 def module_bl_info(mod, info_basis=None):
     if info_basis is None:
         info_basis = {
