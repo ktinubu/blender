@@ -424,32 +424,35 @@ bool BKE_blendfile_read_from_memfile(
 	return (bfd != NULL);
 }
 
+void BKE_blendfile_userdef_assign(UserDef *userdef)
+{
+	/* only here free userdef themes... */
+	BKE_blender_userdef_free(&U);
+	U = *userdef;
+	MEM_freeN(userdef);
+}
+
 /* only read the userdef from a .blend */
-int BKE_blendfile_read_userdef(const char *filepath, ReportList *reports)
+UserDef *BKE_blendfile_userdef_read(const char *filepath, ReportList *reports)
 {
 	BlendFileData *bfd;
-	int retval = BKE_BLENDFILE_READ_FAIL;
+	UserDef *userdef = NULL;
 
 	bfd = BLO_read_from_file(filepath, reports, BLO_READ_SKIP_NONE);
 	if (bfd) {
 		if (bfd->user) {
-			retval = BKE_BLENDFILE_READ_OK_USERPREFS;
-
-			/* only here free userdef themes... */
-			BKE_blender_userdef_free(&U);
-
-			U = *bfd->user;
-			MEM_freeN(bfd->user);
+			userdef = bfd->user;
+			bfd->user = NULL;
 		}
 		BKE_main_free(bfd->main);
 		MEM_freeN(bfd);
 	}
 
-	return retval;
+	return userdef;
 }
 
 /* only write the userdef in a .blend */
-int BKE_blendfile_write_userdef(const char *filepath, ReportList *reports)
+int BKE_blendfile_userdef_write(const char *filepath, ReportList *reports)
 {
 	Main *mainb = MEM_callocN(sizeof(Main), "empty main");
 	int retval = 0;
