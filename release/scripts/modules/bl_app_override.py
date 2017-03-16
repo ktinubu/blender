@@ -29,7 +29,6 @@ Intended for use with 'app_templates', though it can be used from anywhere.
 # TODO, how to check these aren't from add-ons.
 # templates might need to un-register while filtering.
 def class_filter(cls_parent, **kw):
-    kw = kw.copy()
     white_list = kw.pop("white_list", None)
     black_list = kw.pop("black_list", None)
     kw_items = tuple(kw.items())
