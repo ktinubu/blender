@@ -375,7 +375,7 @@ def app_template_paths(subdir=None):
     """
     # All possible paths, no duplicates, keep order.
     base_paths = (
-        path for path in (_os.path.join(resource_path(res), "app_templates")
+        path for path in (_os.path.join(resource_path(res), "datafiles", "app_templates")
         for res in ('LOCAL', 'USER', 'SYSTEM')))
 
     templates = []
