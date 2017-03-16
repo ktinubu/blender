@@ -126,7 +126,7 @@ class USERPREF_MT_app_templates(Menu):
                 "use_splash": use_splash,
                 "use_template": True,
             },
-            filter_ext=lambda ext: ext.lower() == ".blend",
+            filter_path=lambda path: os.path.basename(path) == "startup.blend",
             # name of directory the file is in.
             display_name=lambda f: bpy.path.display_name(f.rsplit(os.sep, 2)[-2]),
         )
