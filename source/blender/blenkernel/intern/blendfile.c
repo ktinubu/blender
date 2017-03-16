@@ -430,7 +430,7 @@ UserDef *BKE_blendfile_userdef_read(const char *filepath, ReportList *reports)
 	BlendFileData *bfd;
 	UserDef *userdef = NULL;
 
-	bfd = BLO_read_from_file(filepath, reports, BLO_READ_SKIP_NONE);
+	bfd = BLO_read_from_file(filepath, reports, BLO_READ_SKIP_ALL & ~BLO_READ_SKIP_USERDEF);
 	if (bfd) {
 		if (bfd->user) {
 			userdef = bfd->user;
@@ -450,7 +450,7 @@ UserDef *BKE_blendfile_userdef_read_from_memory(
 	BlendFileData *bfd;
 	UserDef *userdef = NULL;
 
-	bfd = BLO_read_from_memory(filebuf, filelength, reports, BLO_READ_SKIP_NONE);
+	bfd = BLO_read_from_memory(filebuf, filelength, reports, BLO_READ_SKIP_ALL & ~BLO_READ_SKIP_USERDEF);
 	if (bfd) {
 		if (bfd->user) {
 			userdef = bfd->user;
