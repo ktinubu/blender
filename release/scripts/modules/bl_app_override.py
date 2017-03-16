@@ -33,8 +33,10 @@ def class_filter(cls_parent, **kw):
     black_list = kw.pop("black_list", None)
     kw_items = tuple(kw.items())
     for cls in cls_parent.__subclasses__():
-        if black_list is not None and cls.__name__ in black_list:
-            continue
-        if ((white_list is not None and cls.__name__ is white_list) or
-                all((getattr(cls, attr) in expect) for attr, expect in kw_items)):
-            yield cls
+        # same as is_registered()
+        if "bl_rna" in cls.__dict__:
+            if black_list is not None and cls.__name__ in black_list:
+                continue
+            if ((white_list is not None and cls.__name__ is white_list) or
+                    all((getattr(cls, attr) in expect) for attr, expect in kw_items)):
+                yield cls
