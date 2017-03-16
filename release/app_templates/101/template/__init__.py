@@ -28,7 +28,13 @@ def register():
 
     class_store.clear()
 
-    class_store.extend(bl_app_override.class_match.panel())
+    class_store.extend(
+        bl_app_override.class_filter(
+            bpy.types.Panel,
+            bl_region_type={'TOOLS', 'WINDOW'},
+            bl_space_type={'VIEW_3D', 'PROPERTIES'}
+        ),
+    )
     unregister = bpy.utils.unregister_class
     for cls in class_store:
         unregister(cls)

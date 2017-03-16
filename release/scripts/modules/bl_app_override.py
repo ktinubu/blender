@@ -25,24 +25,12 @@ Module to manage overriding various parts of Blender.
 Intended for use with 'app_templates', though it can be used from anywhere.
 """
 
-class class_match:
-    # TODO, how to check these aren't from add-ons,
-    # templates might need to un-register while filtering.
 
-    @staticmethod
-    def _rna_subclasses(cls_parent):
-        for cls in cls_parent.__subclasses__():
+# TODO, how to check these aren't from add-ons.
+# templates might need to un-register while filtering.
+def class_filter(cls_parent, **kw):
+    kw_items = tuple(kw.items())
+    for cls in cls_parent.__subclasses__():
+        if all((getattr(cls, attr) in expect) for attr, expect in kw_items):
             yield cls
 
-    @staticmethod
-    def panel(*, bl_category=None, bl_space_type=None, bl_region_type=None):
-        # None or set
-        import bpy
-        for cls in class_match._rna_subclasses(bpy.types.Panel):
-            if bl_category is not None and cls.bl_category not in bl_category:
-                continue
-            if bl_space_type is not None and cls.bl_space_type not in bl_space_type:
-                continue
-            if bl_region_type is not None and cls.bl_region_type not in bl_region_type:
-                continue
-            yield cls
