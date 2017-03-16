@@ -770,6 +770,11 @@ int wm_homefile_read(
 		if (filepath_userdef_template) {
 			BLI_join_dirfile(temp_path, sizeof(temp_path), filepath_userdef_template, BLENDER_USERPREF_FILE);
 			UserDef *userdef_template = BKE_blendfile_userdef_read(temp_path, NULL);
+			if (userdef_template == NULL) {
+				/* we need to have preferences load to overwrite preferences from previous template */
+				userdef_template = BKE_blendfile_userdef_read_from_memory(
+				        datatoc_startup_blend, datatoc_startup_blend_size, NULL);
+			}
 			if (userdef_template) {
 				BKE_blender_userdef_set_template(userdef_template);
 				BKE_blender_userdef_free_data(userdef_template);
