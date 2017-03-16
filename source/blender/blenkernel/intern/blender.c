@@ -218,6 +218,30 @@ void BKE_blender_userdef_refresh(void)
 
 }
 
+/**
+ * Write U from userdef.
+ * This function defines which settings a template will override for the user preferences.
+ */
+void BKE_blender_userdef_set_template(UserDef *userdef)
+{
+	/* TODO:
+	 * - keymaps
+	 * - various minor settings (add as needed).
+	 */
+
+#define LIST_OVERRIDE(dst, src) { \
+	BLI_freelistN(dst); \
+	BLI_movelisttolist(dst, src); \
+} ((void)0)
+
+	LIST_OVERRIDE(&U.uistyles, &userdef->uistyles);
+	LIST_OVERRIDE(&U.uifonts, &userdef->uifonts);
+	LIST_OVERRIDE(&U.themes, &userdef->themes);
+	LIST_OVERRIDE(&U.addons, &userdef->addons);
+
+#undef LIST_OVERRIDE
+}
+
 /* *****************  testing for break ************* */
 
 static void (*blender_test_break_cb)(void) = NULL;

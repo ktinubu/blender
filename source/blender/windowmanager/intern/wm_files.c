@@ -715,7 +715,7 @@ int wm_homefile_read(
 	if (!from_memory && BLI_exists(filepath_userdef)) {
 		UserDef *userdef = BKE_blendfile_userdef_read(filepath_userdef, NULL);
 		if (userdef != NULL) {
-			BKE_blendfile_userdef_assign(userdef);
+			BKE_blendfile_userdef_set(userdef);
 
 			read_userdef_from_memory = false;
 			skip_flags |= BLO_READ_SKIP_USERDEF;
@@ -758,6 +758,23 @@ int wm_homefile_read(
 	/* Load a file but keep the splash open */
 	if (custom_app_template) {
 		BLI_strncpy(U.app_template, custom_app_template, sizeof(U.app_template));
+	}
+
+	/* load template preferences */
+	if (U.app_template[0] != '\0') {
+		char temp_path[FILE_MAX];
+		BLI_join_dirfile(temp_path, sizeof(temp_path), "app_templates", U.app_template);
+		const char *filepath_userdef_template = BKE_appdir_folder_id(BLENDER_DATAFILES, temp_path);
+
+		if (filepath_userdef_template) {
+			BLI_join_dirfile(temp_path, sizeof(temp_path), filepath_userdef_template, BLENDER_USERPREF_FILE);
+			UserDef *userdef_template = BKE_blendfile_userdef_read(temp_path, NULL);
+			if (userdef_template) {
+				BKE_blender_userdef_set_template(userdef_template);
+				BKE_blender_userdef_free_data(userdef_template);
+				MEM_freeN(userdef_template);
+			}
+		}
 	}
 
 	/* prevent buggy files that had G_FILE_RELATIVE_REMAP written out by mistake. Screws up autosaves otherwise
