@@ -51,7 +51,6 @@ bool BKE_blendfile_read_from_memfile(
         struct bContext *C, struct MemFile *memfile,
         struct ReportList *reports, int skip_flag);
 
-void            BKE_blendfile_userdef_set(struct UserDef *userdef);
 struct UserDef *BKE_blendfile_userdef_read(const char *filepath, struct ReportList *reports);
 int             BKE_blendfile_userdef_write(const char *filepath, struct ReportList *reports);
 

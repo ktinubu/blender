@@ -48,6 +48,7 @@ void BKE_blender_version_string(
         char *version_str, size_t maxncpy,
         short version, short subversion, bool v_prefix, bool include_subversion);
 
+void BKE_blender_userdef_set_data(struct UserDef *userdef);
 void BKE_blender_userdef_free_data(struct UserDef *userdef);
 void BKE_blender_userdef_refresh(void);
 

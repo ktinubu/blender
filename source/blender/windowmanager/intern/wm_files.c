@@ -715,7 +715,8 @@ int wm_homefile_read(
 	if (!from_memory && BLI_exists(filepath_userdef)) {
 		UserDef *userdef = BKE_blendfile_userdef_read(filepath_userdef, NULL);
 		if (userdef != NULL) {
-			BKE_blendfile_userdef_set(userdef);
+			BKE_blender_userdef_set_data(userdef);
+			MEM_freeN(userdef);
 
 			read_userdef_from_memory = false;
 			skip_flags |= BLO_READ_SKIP_USERDEF;

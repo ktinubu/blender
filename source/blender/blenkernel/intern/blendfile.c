@@ -424,14 +424,6 @@ bool BKE_blendfile_read_from_memfile(
 	return (bfd != NULL);
 }
 
-void BKE_blendfile_userdef_set(UserDef *userdef)
-{
-	/* only here free userdef themes... */
-	BKE_blender_userdef_free_data(&U);
-	U = *userdef;
-	MEM_freeN(userdef);
-}
-
 /* only read the userdef from a .blend */
 UserDef *BKE_blendfile_userdef_read(const char *filepath, ReportList *reports)
 {
@@ -442,7 +434,6 @@ UserDef *BKE_blendfile_userdef_read(const char *filepath, ReportList *reports)
 	if (bfd) {
 		if (bfd->user) {
 			userdef = bfd->user;
-			bfd->user = NULL;
 		}
 		BKE_main_free(bfd->main);
 		MEM_freeN(bfd);
