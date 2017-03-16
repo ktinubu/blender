@@ -1762,6 +1762,34 @@ static uiBlock *wm_block_create_splash(bContext *C, ARegion *ar, void *UNUSED(ar
 		ibuf = IMB_ibImageFromMemory((unsigned char *)datatoc_splash_png,
 		                             datatoc_splash_png_size, IB_rect, NULL, "<splash screen>");
 	}
+
+	/* overwrite splash with template image */
+	if (U.app_template[0] != '\0') {
+		ImBuf *ibuf_template = NULL;
+		char temp_path[FILE_MAX];
+		BLI_join_dirfile(temp_path, sizeof(temp_path), "app_templates", U.app_template);
+		const char *filepath_template = BKE_appdir_folder_id(BLENDER_DATAFILES, temp_path);
+
+		if (filepath_template) {
+			BLI_join_dirfile(
+			        temp_path, sizeof(temp_path), filepath_template,
+			        (U.pixelsize == 2) ? "splash_2x.png" : "splash.png");
+			ibuf_template = IMB_loadiffname(temp_path, IB_rect, NULL);
+			if (ibuf_template) {
+				/* don't cover the header text */
+				if (ibuf_template->x == ibuf->x && ibuf_template->y <= ibuf->y) {
+					memcpy(ibuf->rect, ibuf_template->rect, ibuf_template->x * ibuf_template->y * sizeof(char[4]));
+				}
+				else {
+					printf("Splash has bad size: %s\n", temp_path);
+				}
+				IMB_freeImBuf(ibuf_template);
+			}
+		}
+	}
+
+
+
 #endif
 
 	block = UI_block_begin(C, ar, "_popup", UI_EMBOSS);
