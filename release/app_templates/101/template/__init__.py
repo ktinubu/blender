@@ -31,8 +31,14 @@ def register():
     class_store.extend(
         bl_app_override.class_filter(
             bpy.types.Panel,
+            # match any of these values
             bl_region_type={'TOOLS', 'WINDOW'},
-            bl_space_type={'VIEW_3D', 'PROPERTIES'}
+            bl_space_type={'VIEW_3D', 'PROPERTIES'},
+            # keep basic panels
+            black_list={
+                'VIEW3D_PT_tools_add_object',
+                'OBJECT_PT_transform',
+            },
         ),
     )
     unregister = bpy.utils.unregister_class

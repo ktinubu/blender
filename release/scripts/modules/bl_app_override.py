@@ -29,8 +29,13 @@ Intended for use with 'app_templates', though it can be used from anywhere.
 # TODO, how to check these aren't from add-ons.
 # templates might need to un-register while filtering.
 def class_filter(cls_parent, **kw):
+    kw = kw.copy()
+    white_list = kw.pop("white_list", None)
+    black_list = kw.pop("black_list", None)
     kw_items = tuple(kw.items())
     for cls in cls_parent.__subclasses__():
-        if all((getattr(cls, attr) in expect) for attr, expect in kw_items):
+        if black_list is not None and cls.__name__ in black_list:
+            continue
+        if ((white_list is not None and cls.__name__ is white_list) or
+                all((getattr(cls, attr) in expect) for attr, expect in kw_items)):
             yield cls
-
