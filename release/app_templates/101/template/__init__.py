@@ -18,12 +18,12 @@
 
 # <pep8-80 compliant>
 
-class_store = []
-
+import bpy
 import bl_app_override
 
+class_store = []
+
 def register():
-    import bpy
     print("Template Register", __file__)
 
     class_store.clear()
@@ -48,7 +48,6 @@ def register():
 
 def unregister():
     print("Template Unregister", __file__)
-    import bpy
 
     register = bpy.utils.register_class
     for cls in class_store:
