@@ -64,12 +64,17 @@ class AppStateStore:
 
 app_state = AppStateStore()
 
+from . import ui
 
 def register():
     print("Template Register", __file__)
     app_state.backup()
 
+    ui.register()
 
 def unregister():
     print("Template Unregister", __file__)
+
+    ui.unregister()
+
     app_state.restore()
