@@ -173,6 +173,7 @@ def _disable(template_id, *, handle_error=None):
     if _bpy.app.debug_python:
         print("\tapp_template_utils.disable", template_id)
 
+
 def import_from_path(path, ignore_not_found=False):
     """
     Imports 'startup' from a path.
@@ -186,8 +187,7 @@ def import_from_path(path, ignore_not_found=False):
         except ModuleNotFoundError as ex:
             if ignore_not_found and ex.name == module_name:
                 return None
-            else:
-                raise ex
+            raise ex
 
 
 def import_from_id(template_id, ignore_not_found=False):
