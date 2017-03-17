@@ -334,6 +334,12 @@ install(
 	"file(REMOVE_RECURSE ${TARGETDIR_VER})"
 )
 
+install(
+	DIRECTORY ${CMAKE_SOURCE_DIR}/release/datafiles/app_templates
+	DESTINATION ${TARGETDIR_VER}/datafiles
+	PATTERN "__pycache__" EXCLUDE
+)
+
 if(WITH_PYTHON)
 	# install(CODE "message(\"copying blender scripts...\")")
 	
