@@ -769,7 +769,11 @@ int wm_homefile_read(
 
 		if (filepath_userdef_template) {
 			BLI_join_dirfile(temp_path, sizeof(temp_path), filepath_userdef_template, BLENDER_USERPREF_FILE);
-			UserDef *userdef_template = BKE_blendfile_userdef_read(temp_path, NULL);
+			UserDef *userdef_template = NULL;
+			/* just avoids missing file warning */
+			if (BLI_exists(temp_path)) {
+				BKE_blendfile_userdef_read(temp_path, NULL);
+			}
 			if (userdef_template == NULL) {
 				/* we need to have preferences load to overwrite preferences from previous template */
 				userdef_template = BKE_blendfile_userdef_read_from_memory(

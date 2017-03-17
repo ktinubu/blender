@@ -86,7 +86,7 @@ class _IsolateImportHelper:
             pass
 
 
-def _enable(template_id, *, handle_error=None):
+def _enable(template_id, *, handle_error=None, ignore_not_found=False):
     import os
     import sys
     from bpy_restrict_state import RestrictBlend
@@ -105,7 +105,9 @@ def _enable(template_id, *, handle_error=None):
 
         # 1) try import
         try:
-            mod = import_from_id(template_id)
+            mod = import_from_id(template_id, ignore_not_found=ignore_not_found)
+            if mod is None:
+                return None
             mod.__template_enabled__ = False
             _modules[template_id] = mod
         except Exception as ex:
@@ -171,24 +173,29 @@ def _disable(template_id, *, handle_error=None):
     if _bpy.app.debug_python:
         print("\tapp_template_utils.disable", template_id)
 
-def import_from_path(path):
+def import_from_path(path, ignore_not_found=False):
     """
     Imports 'startup' from a path.
     """
-
     module_name = "template"
     # loading packages without modifying sys.path is some dark-art.
     # for now just use regular import but don't use sys.modules for cache.
     with _IsolateImportHelper(path, module_name):
-        return __import__(module_name)
+        try:
+            return __import__(module_name)
+        except ModuleNotFoundError as ex:
+            if ignore_not_found and ex.name == module_name:
+                return None
+            else:
+                raise ex
 
 
-def import_from_id(template_id):
+def import_from_id(template_id, ignore_not_found=False):
     path = next(iter(_bpy.utils.app_template_paths(template_id)), None)
     if path is None:
         raise Exception("%r template not found!" % template_id)
     else:
-        return import_from_path(path)
+        return import_from_path(path, ignore_not_found=ignore_not_found)
 
 
 def activate(template_id=None):
@@ -201,7 +208,8 @@ def activate(template_id=None):
     if template_id_prev:
         _disable(template_id_prev)
 
-    mod = _enable(template_id) if template_id else None
+    # ignore_not_found so modules that don't contain scripts don't raise errors
+    mod = _enable(template_id, ignore_not_found=True) if template_id else None
 
     if mod is not None:
         _app_template["id"] = template_id
