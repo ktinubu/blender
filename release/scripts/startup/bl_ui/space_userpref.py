@@ -163,7 +163,7 @@ class USERPREF_MT_splash(Menu):
 
         split = layout.split()
         row = split.row()
-        row.label("Application Template")
+        row.label("Template:")
         template = context.user_preferences.app_template
         row.menu(
             "USERPREF_MT_templates_splash",
