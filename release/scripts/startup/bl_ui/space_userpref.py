@@ -1543,6 +1543,7 @@ classes = (
     USERPREF_HT_header,
     USERPREF_PT_tabs,
     USERPREF_MT_interaction_presets,
+    USERPREF_MT_templates_splash,
     USERPREF_MT_appconfigs,
     USERPREF_MT_splash,
     USERPREF_MT_splash_footer,
