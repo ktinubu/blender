@@ -132,7 +132,7 @@ class USERPREF_MT_app_templates(Menu):
         )
 
     def draw(self, context):
-        self.draw_ex(context, use_splash=False, use_default=False)
+        self.draw_ex(context, use_splash=False, use_default=True)
 
 
 class USERPREF_MT_templates_splash(Menu):
@@ -1544,6 +1544,7 @@ classes = (
     USERPREF_PT_tabs,
     USERPREF_MT_interaction_presets,
     USERPREF_MT_templates_splash,
+    USERPREF_MT_app_templates,
     USERPREF_MT_appconfigs,
     USERPREF_MT_splash,
     USERPREF_MT_splash_footer,
