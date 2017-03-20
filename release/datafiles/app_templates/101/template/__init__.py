@@ -26,13 +26,20 @@ class AppStateStore:
     # Utility class to encapsulate application state, backup and restore.
     __slots__ = (
         "class_store",
+        "sys_path",
+    )
+
+    _template_addons = (
     )
 
     def __init__(self):
         self.class_store = []
+        self.sys_path = []
 
-    def backup(self):
+    def setup_classes(self):
         assert(len(self.class_store) == 0)
+
+        # Classes
 
         self.class_store.extend(
             bl_app_override.class_filter(
@@ -53,13 +60,39 @@ class AppStateStore:
         for cls in self.class_store:
             unregister(cls)
 
-    def restore(self):
+    def teardown_classes(self):
         assert(len(self.class_store) != 0)
 
         register = bpy.utils.register_class
         for cls in self.class_store:
             register(cls)
         self.class_store.clear()
+
+    def setup_addons(self):
+        import sys
+        import os
+        template_addons = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "addons"))
+        if template_addons not in sys.path:
+            sys.path.append(template_addons)
+            self.sys_path.append(template_addons)
+
+        import addon_utils
+        for addon in self._template_addons:
+            addon_utils.enable(addon)
+
+    def teardown_addons(self):
+        import sys
+        for path in self.sys_path:
+            # should always succeed, but if not its no problem
+            try:
+                sys.path.remove(path)
+            except:
+                pass
+        self.sys_path.clear()
+
+        import addon_utils
+        for addon in self._template_addons:
+            addon_utils.disable(addon)
 
 
 app_state = AppStateStore()
@@ -68,7 +101,8 @@ from . import ui
 
 def register():
     print("Template Register", __file__)
-    app_state.backup()
+    app_state.setup_classes()
+    app_state.setup_addons()
 
     ui.register()
 
@@ -77,4 +111,5 @@ def unregister():
 
     ui.unregister()
 
-    app_state.restore()
+    app_state.teardown_classes()
+    app_state.teardown_addons()
