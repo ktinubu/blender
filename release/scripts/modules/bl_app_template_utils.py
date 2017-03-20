@@ -208,12 +208,12 @@ def activate(template_id=None):
         return
     """
 
+    if template_id_prev:
+        _disable(template_id_prev)
+
     # Disable all addons, afterwards caller must reset.
     import addon_utils
     addon_utils.disable_all()
-
-    if template_id_prev:
-        _disable(template_id_prev)
 
     # ignore_not_found so modules that don't contain scripts don't raise errors
     mod = _enable(template_id, ignore_not_found=True) if template_id else None
