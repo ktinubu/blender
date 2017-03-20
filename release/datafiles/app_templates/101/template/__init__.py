@@ -30,6 +30,7 @@ class AppStateStore:
     )
 
     _template_addons = (
+        "template_101_library",
     )
 
     def __init__(self):

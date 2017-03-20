@@ -1483,15 +1483,17 @@ static int wm_homefile_read_exec(bContext *C, wmOperator *op)
 		G.fileflags &= ~G_FILE_NO_UI;
 	}
 
-	char app_template[sizeof(U.app_template)] = "";
+	char app_template_buf[sizeof(U.app_template)] = "";
+	const char *app_template = NULL;
 	const bool is_app_template = !from_memory && RNA_boolean_get(op->ptr, "use_template");
 	const bool use_splash = !from_memory && RNA_boolean_get(op->ptr, "use_splash");
 
-	if (filepath != NULL) {
-		wm_file_template_from_path(app_template, filepath);
+	if (is_app_template && filepath != NULL) {
+		wm_file_template_from_path(app_template_buf, filepath);
+		app_template = app_template_buf;
 	}
 
-	if (wm_homefile_read(C, op->reports, from_memory, filepath, is_app_template ? app_template : NULL)) {
+	if (wm_homefile_read(C, op->reports, from_memory, filepath, app_template)) {
 		if (use_splash) {
 			WM_init_splash(C);
 		}

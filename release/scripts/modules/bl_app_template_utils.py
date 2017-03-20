@@ -167,7 +167,7 @@ def _disable(template_id, *, handle_error=None):
                   getattr(mod, "__file__", template_id))
             handle_error(ex)
     else:
-        print("addon_utils.disable: %s not %s." %
+        print("\tapp_template_utils.disable: %s not %s." %
               (template_id, "disabled" if mod is None else "loaded"))
 
     if _bpy.app.debug_python:
@@ -199,20 +199,26 @@ def import_from_id(template_id, ignore_not_found=False):
 
 
 def activate(template_id=None):
+    template_id_prev = _app_template["id"]
+
+    # not needed but may as well avoid activating same template
+    # ... in fact keep this, it will show errors early on!
+    """
+    if template_id_prev == template_id:
+        return
+    """
 
     # Disable all addons, afterwards caller must reset.
     import addon_utils
     addon_utils.disable_all()
 
-    template_id_prev = _app_template["id"]
     if template_id_prev:
         _disable(template_id_prev)
 
     # ignore_not_found so modules that don't contain scripts don't raise errors
     mod = _enable(template_id, ignore_not_found=True) if template_id else None
 
-    if mod is not None:
-        _app_template["id"] = template_id
+    _app_template["id"] = template_id
 
 
 def reset(*, reload_scripts=False):
