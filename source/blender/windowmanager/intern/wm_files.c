@@ -1523,7 +1523,7 @@ void WM_OT_read_homefile(wmOperatorType *ot)
 	RNA_def_property_flag(prop, PROP_HIDDEN | PROP_SKIP_SAVE);
 
 	/* So the splash can be kept open after loading a file (for templates). */
-	prop = RNA_def_boolean(ot->srna, "use_splash", true, "Splash", "");
+	prop = RNA_def_boolean(ot->srna, "use_splash", false, "Splash", "");
 	RNA_def_property_flag(prop, PROP_HIDDEN | PROP_SKIP_SAVE);
 
 	prop = RNA_def_boolean(ot->srna, "use_template", true, "Template", "");
