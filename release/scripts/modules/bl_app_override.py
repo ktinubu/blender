@@ -45,8 +45,9 @@ def class_filter(cls_parent, **kw):
 def ui_draw_filter_register(
     *,
     classes=None,
-    property_blacklist=None,
-    operator_blacklist=None,
+    filter_operator=None,
+    filter_property=None,
+    filter_label=None,
 ):
     import bpy
 
@@ -58,12 +59,6 @@ def ui_draw_filter_register(
             bpy.types.Menu,
             bpy.types.Header,
         )
-
-    def filter_operator(op_id):
-        return op_id not in operator_blacklist
-
-    def filter_prop(data, prop):
-        return (data.__class__.__name__, prop) not in property_blacklist
 
     class OperatorProperties_Fake:
         pass
@@ -83,6 +78,9 @@ def ui_draw_filter_register(
                 return dummy_func
 
             elif attr in {"operator", "operator_menu_enum", "operator_enum"}:
+                if filter_operator is None:
+                    return UILayout.__getattribute__(self, attr)
+
                 real_func = UILayout.__getattribute__(self, attr)
 
                 def dummy_func(*args, **kw):
@@ -96,13 +94,31 @@ def ui_draw_filter_register(
                     return ret
                 return dummy_func
             elif attr in {"prop", "prop_enum"}:
+                if filter_property is None:
+                    return UILayout.__getattribute__(self, attr)
+
                 real_func = UILayout.__getattribute__(self, attr)
 
                 def dummy_func(*args, **kw):
                     # print("wrapped", attr)
-                    if filter_prop(args[0], args[1]):
+                    if filter_property(args[0].__class__.__name__, args[1]):
                         ret = real_func(*args, **kw)
                     else:
+                        ret = None
+                    return ret
+                return dummy_func
+            elif attr == "label":
+                if filter_label is None:
+                    return UILayout.__getattribute__(self, attr)
+
+                real_func = UILayout.__getattribute__(self, attr)
+
+                def dummy_func(*args, **kw):
+                    # print("wrapped", attr)
+                    if filter_label(args[0] if args else kw["text"]):
+                        ret = real_func(*args, **kw)
+                    else:
+                        # ret = real_func()
                         ret = None
                     return ret
                 return dummy_func
@@ -112,6 +128,14 @@ def ui_draw_filter_register(
 
         def operator(*args, **kw):
             return super().operator(*args, **kw)
+
+        def label(*args, **kw):
+            text = args[1] if args else kw["text"]
+            if filter_label(text):
+                return super().label(*args, **kw)
+            else:
+                return super().label(args[0], "")
+
 
     def draw_override(func_orig, self_real, context):
         # simple, no wrapping

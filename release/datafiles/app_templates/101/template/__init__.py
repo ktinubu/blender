@@ -46,7 +46,6 @@ class AppStateStore:
         assert(len(self.class_store) == 0)
 
         # Classes
-
         self.class_store.extend(
             bl_app_override.class_filter(
                 bpy.types.Panel,
@@ -76,29 +75,44 @@ class AppStateStore:
 
     def setup_ui_filter(self):
         import bl_app_override
-        self.ui_filter_store = bl_app_override.ui_draw_filter_register(
-            operator_blacklist={
-                # "render.render",
+
+        def filter_operator(op_id):
+            return op_id not in {
                 "transform.mirror",
                 "sound.mixdown",
                 "object.modifier_add",
                 "object.forcefield_toggle",
-            },
-            property_blacklist={
+            }
+
+        def filter_property(ty, prop):
+            return (ty, prop) not in {
                 ("Object", "location"),
-                ("Object", "scale"),
                 ("Object", "rotation_euler"),
-                ("RenderSettings", "use_placeholder"),
-                ("RenderSettings", "use_render_cache"),
-                ("RenderSettings", "pixel_filter_type"),
+                ("Object", "scale"),
                 ("RenderSettings", "filter_size"),
-                ("RenderSettings", "frame_map_old"),
                 ("RenderSettings", "frame_map_new"),
-                ("RenderSettings", "use_border"),
-                ("RenderSettings", "use_crop_to_border"),
+                ("RenderSettings", "frame_map_old"),
                 ("RenderSettings", "pixel_aspect_x"),
                 ("RenderSettings", "pixel_aspect_y"),
-            },
+                ("RenderSettings", "pixel_filter_type"),
+                ("RenderSettings", "use_border"),
+                ("RenderSettings", "use_crop_to_border"),
+                ("RenderSettings", "use_placeholder"),
+                ("RenderSettings", "use_render_cache"),
+                ("Scene", "frame_step"),
+            }
+
+        def filter_label(text):
+            # print(text)
+            return text not in {
+                "Aspect Ratio:",
+                "Time Remapping:",
+            }
+
+        self.ui_filter_store = bl_app_override.ui_draw_filter_register(
+            filter_operator=filter_operator,
+            filter_property=filter_property,
+            filter_label=filter_label,
         )
 
     def teardown_ui_filter(self):
