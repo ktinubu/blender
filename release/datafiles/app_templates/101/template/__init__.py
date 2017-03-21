@@ -156,7 +156,7 @@ from . import ui
 
 def register():
     print("Template Register", __file__)
-    # app_state.setup_classes()
+    app_state.setup_classes()
     app_state.setup_addons()
     app_state.setup_ui_filter()
 
@@ -167,6 +167,6 @@ def unregister():
 
     ui.unregister()
 
-    # app_state.teardown_classes()
+    app_state.teardown_classes()
     app_state.teardown_addons()
     app_state.teardown_ui_filter()
