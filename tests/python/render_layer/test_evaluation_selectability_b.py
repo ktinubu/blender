@@ -37,8 +37,7 @@ class UnitTesting(RenderLayerTesting):
 
         layer_collection_mom = layer.collections.link(scene_collection_mom)
         layer_collection_kid = layer.collections.link(scene_collection_kid)
-
-        layer_collection_mom.hide = False
+        bpy.context.scene.update() # update depsgraph
         cube.select_set('SELECT')
 
         layer_collection_mom.collections[layer_collection_kid.name].hide = True

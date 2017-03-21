@@ -39,9 +39,9 @@ class UnitTesting(RenderLayerTesting):
         layer_collection_kid = layer.collections.link(scene_collection_kid)
 
         layer_collection_mom.hide = False
+        bpy.context.scene.update() # update depsgraph
         cube.select_set('SELECT')
 
-        bpy.context.scene.update() # update depsgraph
         self.assertTrue(cube.visible_get(), "Cube should be visible")
         self.assertTrue(cube.select_get(), "Cube should be selected")
 
