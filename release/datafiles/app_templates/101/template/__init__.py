@@ -25,8 +25,12 @@ import bl_app_override
 class AppStateStore:
     # Utility class to encapsulate application state, backup and restore.
     __slots__ = (
+        # setup_classes
         "class_store",
+        # setup_addons
         "sys_path",
+        # setup_ui_filter
+        "ui_filter_store"
     )
 
     _template_addons = (
@@ -36,6 +40,7 @@ class AppStateStore:
     def __init__(self):
         self.class_store = []
         self.sys_path = []
+        self.ui_filter_store = []
 
     def setup_classes(self):
         assert(len(self.class_store) == 0)
@@ -68,6 +73,41 @@ class AppStateStore:
         for cls in self.class_store:
             register(cls)
         self.class_store.clear()
+
+    def setup_ui_filter(self):
+        import bl_app_override
+        self.ui_filter_store = bl_app_override.ui_draw_filter_register(
+            operator_blacklist={
+                # "render.render",
+                "transform.mirror",
+                "sound.mixdown",
+                "object.modifier_add",
+                "object.forcefield_toggle",
+            },
+            property_blacklist={
+                ("Object", "location"),
+                ("Object", "scale"),
+                ("Object", "rotation_euler"),
+                ("RenderSettings", "use_placeholder"),
+                ("RenderSettings", "use_render_cache"),
+                ("RenderSettings", "pixel_filter_type"),
+                ("RenderSettings", "filter_size"),
+                ("RenderSettings", "frame_map_old"),
+                ("RenderSettings", "frame_map_new"),
+                ("RenderSettings", "use_border"),
+                ("RenderSettings", "use_crop_to_border"),
+                ("RenderSettings", "pixel_aspect_x"),
+                ("RenderSettings", "pixel_aspect_y"),
+            },
+        )
+
+    def teardown_ui_filter(self):
+        import bl_app_override
+        bl_app_override.ui_draw_filter_unregister(
+            self.ui_filter_store
+        )
+        self.ui_filter_store = None
+
 
     def setup_addons(self):
         import sys
@@ -102,8 +142,9 @@ from . import ui
 
 def register():
     print("Template Register", __file__)
-    app_state.setup_classes()
+    # app_state.setup_classes()
     app_state.setup_addons()
+    app_state.setup_ui_filter()
 
     ui.register()
 
@@ -112,5 +153,6 @@ def unregister():
 
     ui.unregister()
 
-    app_state.teardown_classes()
+    # app_state.teardown_classes()
     app_state.teardown_addons()
+    app_state.teardown_ui_filter()

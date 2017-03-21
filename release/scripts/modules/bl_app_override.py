@@ -40,3 +40,124 @@ def class_filter(cls_parent, **kw):
             if ((white_list is not None and cls.__name__ is white_list) or
                     all((getattr(cls, attr) in expect) for attr, expect in kw_items)):
                 yield cls
+
+
+def ui_draw_filter_register(
+    *,
+    classes=None,
+    property_blacklist=None,
+    operator_blacklist=None,
+):
+    import bpy
+
+    UILayout = bpy.types.UILayout
+
+    if classes is None:
+        classes = (
+            bpy.types.Panel,
+            bpy.types.Menu,
+            bpy.types.Header,
+        )
+
+    def filter_operator(op_id):
+        return op_id not in operator_blacklist
+
+    def filter_prop(data, prop):
+        return (data.__class__.__name__, prop) not in property_blacklist
+
+    class OperatorProperties_Fake:
+        pass
+
+    class UILayout_Fake(bpy.types.UILayout):
+        __slots__ = ()
+
+        def __getattribute__(self, attr):
+            # ensure we always pass down UILayout_Fake instances
+            if attr in {"row", "split", "column", "box", "column_flow"}:
+                real_func = UILayout.__getattribute__(self, attr)
+
+                def dummy_func(*args, **kw):
+                    # print("wrapped", attr)
+                    ret = real_func(*args, **kw)
+                    return UILayout_Fake(ret)
+                return dummy_func
+
+            elif attr in {"operator", "operator_menu_enum", "operator_enum"}:
+                real_func = UILayout.__getattribute__(self, attr)
+
+                def dummy_func(*args, **kw):
+                    # print("wrapped", attr)
+                    if filter_operator(args[0]):
+                        ret = real_func(*args, **kw)
+                    else:
+                        # UILayout.__getattribute__(self, "label")()
+                        # may need to be set
+                        ret = OperatorProperties_Fake()
+                    return ret
+                return dummy_func
+            elif attr in {"prop", "prop_enum"}:
+                real_func = UILayout.__getattribute__(self, attr)
+
+                def dummy_func(*args, **kw):
+                    # print("wrapped", attr)
+                    if filter_prop(args[0], args[1]):
+                        ret = real_func(*args, **kw)
+                    else:
+                        ret = None
+                    return ret
+                return dummy_func
+            else:
+                return UILayout.__getattribute__(self, attr)
+            # print(self, attr)
+
+        def operator(*args, **kw):
+            return super().operator(*args, **kw)
+
+    def draw_override(func_orig, self_real, context):
+        # simple, no wrapping
+        # return func_orig(self_wrap, context)
+
+        class Wrapper(self_real.__class__):
+            __slots__ = ()
+            def __getattribute__(self, attr):
+                if attr == "layout":
+                    return UILayout_Fake(self_real.layout)
+                else:
+                    cls = super()
+                    try:
+                        return cls.__getattr__(self, attr)
+                    except AttributeError:
+                        # class variable
+                        return getattr(cls, attr)
+
+            @property
+            def layout(self):
+                # print("wrapped")
+                return self_real.layout
+
+        return func_orig(Wrapper(self_real), context)
+
+    ui_filter_store = []
+
+    for cls in classes:
+        for subcls in list(cls.__subclasses__()):
+            if "draw" in subcls.__dict__:  # don't want to get parents draw()
+
+                def replace_draw():
+                    # function also serves to hold draw_old in a local name-space
+                    draw_orig = subcls.draw
+
+                    def draw(self, context):
+                        return draw_override(draw_orig, self, context)
+                    subcls.draw = draw
+
+                ui_filter_store.append((subcls, "draw", subcls.draw))
+
+                replace_draw()
+
+    return ui_filter_store
+
+
+def ui_draw_filter_unregister(ui_filter_store):
+    for (obj, attr, value) in ui_filter_store:
+        setattr(obj, attr, value)
